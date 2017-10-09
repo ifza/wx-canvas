@@ -16,6 +16,8 @@ class ConvasMap {
     ifZoom: false,
     maxZoom: 1.5,
     minZoom: 0.5,
+    ZoomCX:0,
+    ZoomCY:0,
     StartDiameter: 0,//缩放初始直径
     DragStart: { x: 0, y: 0, state: false, offset: { x: 0, y: 0 } },//拖拽开始坐标
     overflow: { x: 0, y: 0, state: false },//当前溢出坐标
@@ -74,11 +76,14 @@ class ConvasMap {
     setTimeout(()=>{this.Click(e)},500)
   }
   End(e) {
+    this.o.StartDiameter = 0
     switch (this.o.State){
       case 'click':
         console.log('end-click')
       break;
       case 'zoom':
+        // this.o.offset.x = this.o.ZoomCX
+        // this.o.offset.y = this.o.ZoomCY
         console.log('end-zoom')
         break;
       case 'drag':
@@ -112,11 +117,16 @@ class ConvasMap {
      }   
   }
   Click(e) {
+    console.log('触发click')
+    //click event
     if (this.o.State !== 'drag') {
+      let map = this.o.map
       let zoom = this.o.zoom
-      let x = e.touches[0].x - this.o.offset.x
-      let y = e.touches[0].y - this.o.offset.y
-
+      let CX = this.o.offset.x - (((map.w * zoom) - map.w) / 2)
+      let CY = this.o.offset.y - (((map.h * zoom) - map.h) / 2)
+      let x = e.touches[0].x - CX
+      let y = e.touches[0].y - CY
+      console.log(x,y)
       //遍历检测坐标点是否存在覆盖物
       this.o.masks.forEach(r => {
         let curX = (r.x * zoom) + (((r.w * zoom) - r.w) / 2)
@@ -131,12 +141,11 @@ class ConvasMap {
     }
 
    }
-  Zoom(t1,t2) {
-    
+  Zoom(t1,t2) {    
     console.log('zoom')
     //计算坐标点之间的直径距离
     let x = Math.pow(Math.abs(t1.x - t2.x), 2)
-    let y = Math.pow(Math.abs(t1.y - t2.y), 2)
+    let y = Math.pow(Math.abs(t1.y - t2.y), 2)    
     let CurrentDiameter = Math.sqrt(x + y) 
 
     //检测是否保存了初次坐标点直径距离
@@ -144,7 +153,7 @@ class ConvasMap {
       let zoom = this.o.zoom
       //计算夹捏后与第一次直径的距离
       let dist = this.o.StartDiameter - CurrentDiameter      
-      let curZoom = dist > 0 ? zoom - 0.03 : zoom + 0.03
+      let curZoom = dist > 0 ? zoom - 0.08 : zoom + 0.08
       //检测缩放
       if (curZoom > this.o.minZoom && curZoom < this.o.maxZoom) {
         this.o.zoom = curZoom        
@@ -179,15 +188,20 @@ class ConvasMap {
     const zoom = this.o.zoom    
     this.ctx.save()
     //绘制地图
-    this.ctx.drawImage(map.img, offset.x, offset.y, map.w * zoom, map.h * zoom)
+    let CX = offset.x - (((map.w * zoom) - map.w) / 2)
+    let CY = offset.y - (((map.h * zoom) - map.h) / 2)
+    this.ctx.drawImage(map.img, CX, CY, map.w * zoom, map.h * zoom)    
     //绘制覆盖物
     this.o.masks.forEach(r => {
       //计算覆盖物坐标
-      let x = (offset.x + ((r.x * zoom) + (((r.w * zoom) - r.w) / 2)))
-      let y = (offset.y + ((r.y * zoom) + (((r.h * zoom) - r.h) / 2)))
+      let x = (CX  + ((r.x * zoom) + (((r.w * zoom) - r.w) / 2)))
+      let y = (CY  + ((r.y * zoom) + (((r.h * zoom) - r.h) / 2)))
       this.ctx.drawImage(r.img, x, y, r.w, r.h)
     })
+    this.o.ZoomCX = CX
+    this.o.ZoomCY = CY
     this.ctx.draw()
+  
   }
 }
 export default ConvasMap
