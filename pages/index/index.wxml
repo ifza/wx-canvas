@@ -1,0 +1,7 @@
+<canvas
+canvas-id="map" 
+style="width: 100%; height:400px;"
+disable-scroll="true" 
+bindtouchmove="bindtouchmove"   
+bindlongtap="bindlongtap"   
+bindtouchstart="bindtouchstart" bindtouchend="bindtouchend" />

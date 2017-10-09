@@ -1,0 +1,8 @@
+<view style="width:100%; height:300px;">
+<canvas
+canvas-id="map" 
+style="width: 100%; height:100%;"
+disable-scroll="true" 
+bindtouchmove="move"
+bindtouchstart="start" bindtouchend="end" />
+</view>

@@ -1,0 +1,4 @@
+<template name="test">
+  <view><text>参数</text></view>
+  <view><text>{{text}}</text></view>
+</template>
